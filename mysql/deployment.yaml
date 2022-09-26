@@ -1,0 +1,58 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: mysql
+  namespace: databases
+  labels:
+    app: mysql
+    tier: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+        tier: mysql
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node2
+                - node3
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        resources: 
+        ports:
+        - containerPort: 3306
+          name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: databases-root-password        # the one generated before in secret.yml
+              key: password
+        # - name: MYSQL_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: databases-dev-password        # the one generated before in secret.yml
+        #       key: password
+        envFrom:
+          - configMapRef:
+              name: configmap-mysql
+        volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: mysql-volume
+      volumes:
+        - name: mysql-volume
+          hostPath:
+            path: /var/lib/docker/volumes/mysql #directory on host
+            type: DirectoryOrCreate #optional
