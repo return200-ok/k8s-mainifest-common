@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bipower-ftp
+  namespace: ${namespace}
+  labels:
+    app: bipower-ftp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bipower-ftp
+  template:
+    metadata:
+      labels:
+        app: bipower-ftp
+    spec:
+      containers:
+        - name: bipower-ftp
+          image: atmoz/sftp:latest
+          imagePullPolicy: Always
+          resource:
+          ports:
+            - containerPort: 22
+          securityContext:
+            capabilities:
+              add: ['SYS_ADMIN']
+            privileged: true  
+          volumeMounts:
+            - name: sftp-volume
+              mountPath: /data
+            - name: config-volume
+              mountPath: /etc/sftp/
+              readOnly: true
+            - name: ssh-volume
+              mountPath: /home/foo/.ssh/keys/
+              readOnly: true
+      volumes:
+        - name: sftp-volume
+          hostPath:
+            path: /data/sftp
+            type: DirectoryOrCreate
+        - name: config-volume
+          configMap:
+            name: user-config
+        - name: ssh-volume
+          configMap:
+            name: ssh-config
+
+        # - name: sftp-host-keys
+        #   secret:
+        #     secretName: sftp-host-keys
+        #     defaultMode: 0600
