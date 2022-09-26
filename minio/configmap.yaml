@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-minio
+  labels:
+    name: configmap-minio
+  namespace: ${namespace}
+data:
+  MINIO_ROOT_USER: root
+
+

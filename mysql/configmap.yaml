@@ -4,7 +4,7 @@ metadata:
   name: configmap-mysql
   labels:
     name: configmap-mysql
-  namespace: databases
+  namespace: ${namespace}
 data:
   MYSQL_DATABASE: database_name
   MYSQL_ROOT_USER: root

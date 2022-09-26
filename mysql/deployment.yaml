@@ -2,7 +2,7 @@ apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: mysql
-  namespace: databases
+  namespace: ${namespace}
   labels:
     app: mysql
     tier: mysql
@@ -40,11 +40,6 @@ spec:
             secretKeyRef:
               name: databases-root-password        # the one generated before in secret.yml
               key: password
-        # - name: MYSQL_PASSWORD
-        #   valueFrom:
-        #     secretKeyRef:
-        #       name: databases-dev-password        # the one generated before in secret.yml
-        #       key: password
         envFrom:
           - configMapRef:
               name: configmap-mysql
