@@ -2,7 +2,7 @@ apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
   name: mysql
-  namespace: ${namespace}
+  namespace: database
   labels:
     app: mysql
     tier: mysql
@@ -25,8 +25,7 @@ spec:
               - key: kubernetes.io/hostname
                 operator: In
                 values:
-                - node2
-                - node3
+                - minikube
       containers:
       - name: mysql
         image: mysql:8.0
@@ -46,8 +45,18 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/mysql
             name: mysql-volume
+            
+      # bind to host
+      # volumes:
+      #   - name: mysql-volume
+      #     hostPath:
+      #       path: /var/lib/docker/volumes/mysql #directory on host
+      #       type: DirectoryOrCreate #optional
+
+      # persistent volume claim
       volumes:
-        - name: mysql-volume
-          hostPath:
-            path: /var/lib/docker/volumes/mysql #directory on host
-            type: DirectoryOrCreate #optional
+      - name: mysql-volume
+        # This volume is based on PVC
+        persistentVolumeClaim:
+          # Name of the PVC created earlier
+          claimName: my-pvc-claim
